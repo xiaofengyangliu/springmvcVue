@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd">
+	<description>Spring Context Configuration</description>
+	<mvc:default-servlet-handler />
+
+	<mvc:interceptors>
+		<mvc:interceptor>
+			<!-- 匹配的是url路径， 如果不配置或/**,将拦截所有的Controller -->
+			<mvc:mapping path="/**" />
+			<bean class="data.login.Interceptor.LoginInterceptor"></bean>
+		</mvc:interceptor>
+		<!-- 当设置多个拦截器时，先按顺序调用preHandle方法，然后逆序调用每个拦截器的postHandle和afterCompletion方法 -->
+	</mvc:interceptors>
+
+	<mvc:annotation-driven />
+	<mvc:resources location="/WEB-INF/js/min/vue.min" mapping="/js/min/vue.min.js" />
+	<mvc:resources location="/WEB-INF/js/" mapping="/js/" />
+	<mvc:resources location="/WEB-INF/pages/" mapping="/**" />
+	<mvc:resources location="/pages/" mapping="/**" />
+	<mvc:resources location="/WEB-INF/pages/" mapping="/resources/**" />
+	<mvc:resources location="file:./src/main/resources/,classpath:/"
+		mapping="/**" />
+	<bean
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
+		<property name="ignoreResourceNotFound" value="true" />
+		<property name="locations">
+			<list>
+				<value>classpath:zoo.cfg</value>
+			</list>
+		</property>
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+	</bean>
+	<bean id="globalCodeProperties"
+		class="data.command.spring.global.code.GlobalCodePropertyConfigurer">
+		<property name="order" value="1" />
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
+		<property name="ignoreResourceNotFound" value="true" />
+		<property name="locations">
+			<list>
+				<value>classpath:globalCode.properties</value>
+				<value>classpath:allocation.properties</value>
+				<value>classpath:data_ty_param.properties</value>
+				<value>classpath:data_bft_param.properties</value>
+				<value>classpath:data_jc_param.properties</value>
+				<value>classpath:data_ybs_param.properties</value>
+				<value>classpath:data_zshtjqsvr_param.properties</value>
+				<value>classpath:routing_param.properties</value>
+				<value>classpath:data_bft_up_param.properties</value>
+				<value>classpath:data_server_ui.properties</value>
+				<value>classpath:data_localdb.properties</value>
+				<value>classpath:bft_param.properties</value>
+
+			</list>
+
+		</property>
+	</bean>
+
+	<!-- <bean id="globalCodeProperties1" class="data.command.util.aaa"> <property 
+		name="ignoreUnresolvablePlaceholders" value="true" /> <property name="order" 
+		value="2" /> <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" 
+		/> <property name="ignoreResourceNotFound" value="true" /> <property name="location" 
+		value="classpath:allocation.properties" /> </bean> -->
+	<!-- @ResponseBody 乱码问题 -->
+	<bean
+		class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
+		<property name="messageConverters">
+			<list>
+				<bean
+					class="org.springframework.http.converter.ByteArrayHttpMessageConverter" />
+				<bean
+					class="org.springframework.http.converter.StringHttpMessageConverter">
+					<property name="supportedMediaTypes">
+						<list>
+							<value>text/plain;charset=UTF-8</value>
+						</list>
+					</property>
+				</bean>
+				<bean
+					class="org.springframework.http.converter.ResourceHttpMessageConverter" />
+				<bean
+					class="org.springframework.http.converter.xml.SourceHttpMessageConverter" />
+				<bean
+					class="org.springframework.http.converter.xml.XmlAwareFormHttpMessageConverter" />
+				<bean
+					class="org.springframework.http.converter.xml.Jaxb2RootElementHttpMessageConverter" />
+			</list>
+		</property>
+	</bean>
+	<!-- 上面没匹配到则会使用这个视图解析器 -->
+	<!---->
+	<bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/pages/" />
+		<property name="suffix" value=".jsp" />
+		<property name="order" value="1" />
+		<property name="viewClass"
+			value="org.springframework.web.servlet.view.JstlView" />
+	</bean>
+	<!-- html视图解析器 需要web.xml配置 -->
+	<bean id="viewResolver"
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="order" value="2" />
+		<property name="prefix" value="/WEB-INF/pages/" />
+		<property name="suffix" value=".html" />
+	</bean>
+	<bean id="exceptionResolver"
+		class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+		<property name="defaultErrorView">
+			<value>error</value>
+		</property>
+		<property name="defaultStatusCode">
+			<value>500</value>
+		</property>
+		<property name="warnLogCategory">
+			<value>org.springframework.web.servlet.handler.SimpleMappingExceptionResolver
+			</value>
+		</property>
+	</bean>
+	<bean
+		class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
+		<property name="order" value="1" />
+		<property name="favorParameter" value="false" />
+		<property name="ignoreAcceptHeader" value="true" />
+		<property name="mediaTypes">
+			<map>
+				<entry key="html" value="text/html" />
+				<entry key="xml" value="application/xml" />
+				<entry key="json" value="application/json" />
+			</map>
+		</property>
+		<property name="defaultViews">
+			<list>
+				<bean
+					class="org.springframework.web.servlet.view.json.MappingJackson2JsonView">
+					<property name="prefixJson" value="true" />
+				</bean>
+			</list>
+		</property>
+	</bean>
+	<bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="defaultEncoding" value="utf-8"></property>
+		<property name="maxUploadSize" value="10485760" />
+	</bean>
+	<bean id="springContextHolder" class="data.command.spring.SpringContextHolder" />
+	<bean id="exceptionHandler" class="data.command.spring.exception.ExceptionHandler" />
+
+	<!-- <bean id="recordingAdvice" class="data.server.log.RecordingAdvice" 
+		/> <aop:config> <aop:pointcut id="tryRecordingPoint" expression="execution(* 
+		data.server.controller.AuthenticationController.*(..))" /> <aop:advisor advice-ref="recordingAdvice" 
+		pointcut-ref="tryRecordingPoint" /> </aop:config> <bean id="localDataAdvice" 
+		class="data.server.aop.LocalDataAdvice" /> <aop:config proxy-target-class="true"> 
+		<aop:pointcut id="tryLocalDataPoint" expression="execution(* data.*.service.impl.*.*(..))" 
+		/> <aop:advisor advice-ref="localDataAdvice" pointcut-ref="tryLocalDataPoint" 
+		/> </aop:config> or execution(* data.server.controller.BranchAuthenticationController.*(..)) 
+		or execution(* data.ybs.controller.YbsAuthenticationController.*(..)) or 
+		execution(* data.zshtjqsvr.controller.ZshtAuthenticationController.*(..)) 
+		or execution(* data.gc.controller.GcAuthenticationController.*(..)) or execution(* 
+		data.banktype.controller.BankTypeAuthenticationController.*(..)) or execution(* 
+		data.ty.controller.TyAuthenticationController.*(..)) or execution(* data.xz.controller.XzAuthenticationController.*(..)) 
+		or execution(* data.xz.controller.XzIdAuthenticationController.*(..)) or 
+		execution(* data.zt.controller.ZtAuthenticationController.*(..)) or execution(* 
+		data.zt.controller.ZtIdAuthenticationController.*(..)) or execution(* data.bftup.controller.BftUpAuthenticationController.*(..)) 
+		or execution(* data.jc.controller.JcAuthenticationController.*(..)) or execution(* 
+		data.bankinfor.controller.BankInforAuthenticationController.*(..)) or execution(* 
+		data.server.controller.ExactAuthenticationController.*(..))" <bean id="checkLoginAdvice" 
+		class="data.security.competence.CheckLogin" /> <aop:config> <aop:pointcut 
+		id="tryCheckLoginPoint" expression="execution(* data.user.controller.*.*(..))" 
+		/> <aop:advisor advice-ref="checkLoginAdvice" pointcut-ref="tryCheckLoginPoint" 
+		/> </aop:config> <bean id="interfaceDecodeAdvice" class="data.security.inter.InterfaceDecode" 
+		/> <aop:config> or execution(* data.ybs.controller.*.*(..)) or execution(* 
+		data.zshtjqsvr.controller.*.*(..)) or execution(* data.gc.controller.*.*(..)) 
+		or execution(* data.banktype.controller.*.*(..)) or execution(* data.ty.controller.*.*(..)) 
+		or execution(* data.xz.controller.*.*(..)) or execution(* data.zt.controller.*.*(..)) 
+		or execution(* data.bftup.controller.*.*(..)) or execution(* data.bankinfor.controller.*.*(..)) 
+		or execution(* data.jc.controller.*.*(..))" <aop:pointcut id="tryInterfaceDecodePoint" 
+		expression="execution(* data.server.controller.*.*(..))" /> <aop:advisor 
+		advice-ref="interfaceDecodeAdvice" pointcut-ref="tryInterfaceDecodePoint" 
+		/> </aop:config> -->
+
+	<!-- <bean id="interfaceDecodeAdvice" class="data.security.inter.InterfaceDecode" 
+		/> <aop:config> <aop:pointcut id="tryInterfaceDecodePoint" expression="execution(* 
+		data.*.controller.*.*(..))" /> <aop:advisor advice-ref="interfaceDecodeAdvice" 
+		pointcut-ref="tryInterfaceDecodePoint" /> </aop:config> -->
+
+
+	<!-- auto instance controller -->
+	<context:component-scan base-package="data.*.controller" />
+	<context:component-scan base-package="data.*.upload.controller" />
+	<context:component-scan base-package="data.*.service" />
+	<context:component-scan base-package="data.*.dao" />
+	<context:component-scan base-package="data.*.spring" />
+	<!-- <context:component-scan base-package="data.*.zk.spring" /> -->
+	<context:component-scan base-package=" data.server.log" />
+	<import resource="./applicationContext-dataSource.xml" />
+	<import resource="./applicationContext-jedis.xml" />
+</beans>
